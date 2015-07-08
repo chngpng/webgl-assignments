@@ -55,11 +55,6 @@ window.onload = function init()
     render();
 };
 
-function triangle( a, b, c )
-{
-    points.push( a, b, c );
-}
-
 function rotateWithTwist(a) {
     // assuming that a is a vec2
     var d = 1.8 * Math.sqrt(a[0] * a[0] + a[1] * a[1]);
@@ -77,7 +72,6 @@ function divideTriangle( a, b, c, count )
     // check for end of recursion
 
     if ( count === 0 ) {
-        //triangle( a, b, c );
         rotateWithTwist(a);
         rotateWithTwist(b);
         rotateWithTwist(c);
