@@ -5,7 +5,8 @@ var gl;
 
 var points = [];
 
-var NumTimesToSubdivide = 5;
+var numTimesToSubdivide = 5;
+var theta = 90;
 
 window.onload = function init()
 {
@@ -13,21 +14,6 @@ window.onload = function init()
 
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
-
-    //
-    //  Initialize our data for the Sierpinski Gasket
-    //
-
-    // First, initialize the corners of our gasket with three points.
-
-    var vertices = [
-        vec2( -0.5, -0.5 ),
-        vec2(  0,  0.5 ),
-        vec2(  0.5, -0.5 )
-    ];
-
-    divideTriangle( vertices[0], vertices[1], vertices[2],
-                    NumTimesToSubdivide);
 
     //
     //  Configure WebGL
@@ -44,7 +30,7 @@ window.onload = function init()
 
     var bufferId = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, bufferId );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW );
+    gl.bufferData( gl.ARRAY_BUFFER, 8 * Math.pow(3, 10), gl.STATIC_DRAW );
 
     // Associate out shader variables with our data buffer
 
@@ -52,15 +38,26 @@ window.onload = function init()
     gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vPosition );
 
+    document.getElementById("slider").onchange = function(event) {
+        numTimesToSubdivide = parseInt(event.target.value);
+        console.log("value = " + numTimesToSubdivide);
+        render();
+    };
+
+    document.getElementById("degree_slider").onchange = function(event) {
+        theta = parseInt(event.target.value);
+        console.log("theta = " + theta);
+        render();
+    };
     render();
 };
 
 function rotateWithTwist(a) {
     // assuming that a is a vec2
     var d = 1.8 * Math.sqrt(a[0] * a[0] + a[1] * a[1]);
-    var theta = Math.PI / 3;
-    var xPrime = a[0] * Math.cos(d * theta) - a[1] * Math.sin(d * theta);
-    var yPrime = a[0] * Math.sin(d * theta) + a[1] * Math.cos(d * theta);
+    var thetaConverted = theta / 180 * Math.PI;
+    var xPrime = a[0] * Math.cos(d * thetaConverted) - a[1] * Math.sin(d * thetaConverted);
+    var yPrime = a[0] * Math.sin(d * thetaConverted) + a[1] * Math.cos(d * thetaConverted);
     var aPrime = [xPrime, yPrime];
 
     points.push(aPrime);
@@ -97,6 +94,16 @@ function divideTriangle( a, b, c, count )
 
 function render()
 {
+    // First, initialize the corners of our gasket with three points.
+    var vertices = [
+        vec2( -0.5, -0.5 ),
+        vec2(  0,  0.5 ),
+        vec2(  0.5, -0.5 )
+    ];
+
+    divideTriangle(vertices[0], vertices[1], vertices[2], numTimesToSubdivide);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, flatten(points));
     gl.clear( gl.COLOR_BUFFER_BIT );
     gl.drawArrays( gl.TRIANGLES, 0, points.length );
+    points = [];
 }
