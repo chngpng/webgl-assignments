@@ -19,7 +19,8 @@ window.onload = function init()
     //  Configure WebGL
     //
     gl.viewport( 0, 0, canvas.width, canvas.height );
-    gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
+    gl.clearColor( 0.8, 0.8, 0.8, 1.0 );
+    gl.clear( gl.COLOR_BUFFER_BIT );
 
     console.log("canvas width: " + canvas.width + ", height: " + canvas.height);
 
@@ -68,6 +69,7 @@ window.onload = function init()
 
 function render()
 {
-    //gl.clear( gl.COLOR_BUFFER_BIT );
+    gl.clear( gl.COLOR_BUFFER_BIT );
+    gl.lineWidth(5);
     gl.drawArrays(gl.LINES, 0, vertices.length);
 }
