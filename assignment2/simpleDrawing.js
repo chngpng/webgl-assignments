@@ -19,6 +19,8 @@ window.onload = function init()
     //  Configure WebGL
     //
     gl.viewport( 0, 0, canvas.width, canvas.height );
+
+    // Set canvas color.
     gl.clearColor( 0.8, 0.8, 0.8, 1.0 );
     gl.clear( gl.COLOR_BUFFER_BIT );
 
@@ -36,15 +38,19 @@ window.onload = function init()
       vertices.push(vec2(x, y));
     });
 
-    canvas.addEventListener("mouseup", function(event) {
-      console.log("mouseup event!");
+    // Note that this event listener is registered on the window because everything time the
+    // mouseup event should stop drawing no matter where the mouse is in or out of the canvas.
+    window.addEventListener("mouseup", function(event) {
+      console.log("mouseup within window");
       beginDrawing = false;
-    });
+    })
 
+    // Note that this event handler is registered on the canvas because only start drawing if the
+    // mousedown event is happening when the mouse is in the canvas boundary.
     canvas.addEventListener("mousemove", function(event) {
       if (beginDrawing) console.log("mousemove event: x: " + event.clientX + ", y: " + event.clientY);
+      var rect = event.target.getBoundingClientRect();
       if (beginDrawing) {
-        var rect = event.target.getBoundingClientRect();
         var x = (event.clientX - rect.left - canvas.width / 2) / (canvas.width / 2);
         var y = (canvas.height / 2  + rect.top - event.clientY) / (canvas.height / 2);
 
