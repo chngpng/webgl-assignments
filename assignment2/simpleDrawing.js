@@ -26,7 +26,7 @@ window.onload = function init()
 
     var vBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, maxNumPoints, gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, 8 * maxNumPoints, gl.STATIC_DRAW);
 
     canvas.addEventListener("mousedown", function(event) {
       beginDrawing = true;
@@ -74,5 +74,5 @@ function render()
     gl.clear( gl.COLOR_BUFFER_BIT );
     gl.lineWidth(5);
     for (var i = 0; i < lineStartEnd.length; i++)
-      gl.drawArrays(gl.LINE_STRIP, lineStartEnd[i][0] - 1, lineStartEnd[i][1] - lineStartEnd[i][0]);
+      gl.drawArrays(gl.LINE_STRIP, lineStartEnd[i][0] - 1, lineStartEnd[i][1] - lineStartEnd[i][0] + 1);
 }
