@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+<title>Cylinder</title>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+
+attribute vec4 vPosition;
+
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+
+void
+main()
+{
+    gl_Position = projectionMatrix*modelViewMatrix*vPosition;
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+
+precision mediump float;
+uniform vec4 fColor;
+
+void
+main()
+{
+    gl_FragColor = fColor;
+}
+</script>
+
+<p> </p>
+<button id = "Button0">Increase theta</button>
+<button id = "Button1">Decrease theta</button>
+<button id = "Button2">Increase phi</button>
+<button id = "Button3">Decrease phi</button>
+<p> </p>
+<button id = "Button4">Increase Subdivisions</button>
+<button id = "Button5">Decrease Subdivisions</button>
+
+<div>
+x-angle 0 <input id="slider" type="range"
+min="0" max="360" step="20" value="0" />
+360
+</div>
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="cylinder.js"></script>
+
+<body>
+<canvas id="gl-canvas" width="512" height="512">
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+</body>
+</html>
