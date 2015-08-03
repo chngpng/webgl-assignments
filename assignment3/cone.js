@@ -34,8 +34,6 @@ var zPos = 0;
 
 var scaleFactor = 1;
 
-var modelViewMatrix, projectionMatrix;
-var modelViewMatrixLoc, projectionMatrixLoc;
 var eye;
 const at = vec3(0.0, 0.0, 0.0);
 const up = vec3(0.0, 1.0, 0.0);
@@ -78,13 +76,6 @@ window.onload = function init() {
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
 
-    //
-    //  Load shaders and initialize attribute buffers
-    //
-    //var program = initShaders( gl, "vertex-shader", "fragment-shader" );
-    //programs.push(program);
-    //gl.useProgram( program );
-    
     var vxpos = vec4(1, 0.0, 0.0, 1);
     var vxneg = vec4(-1, 0.0, 0.0, 1);
     var vzpos = vec4(0.0, 0.0, 1, 1);
@@ -101,31 +92,12 @@ window.onload = function init() {
     divideTriangle(vxneg, vzpos, vcenter, numTimesToSubdivide);
     divideTriangle(vxneg, vzneg, vcenter, numTimesToSubdivide);
 
-    //var vBuffer = gl.createBuffer();
-    //gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer);
-    //gl.bufferData( gl.ARRAY_BUFFER, flatten(pointsArray), gl.STATIC_DRAW);
-    
-    //var vPosition = gl.getAttribLocation( program, "vPosition");
-    //gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0);
-    //gl.enableVertexAttribArray( vPosition);
-    //program.vPosition = gl.getAttribLocation( program, "vPosition");
-    //gl.vertexAttribPointer( program.vPosition, 4, gl.FLOAT, false, 0, 0);
-    //gl.enableVertexAttribArray( program.vPosition);
-
-    //fColor = gl.getUniformLocation(program, "fColor");
-    //program.fColor = gl.getUniformLocation(program, "fColor");
-    
-    //modelViewMatrixLoc = gl.getUniformLocation( program, "modelViewMatrix" );
-    //projectionMatrixLoc = gl.getUniformLocation( program, "projectionMatrix" );
-    //program.modelViewMatrixLoc = gl.getUniformLocation( program, "modelViewMatrix" );
-    //program.projectionMatrixLoc = gl.getUniformLocation( program, "projectionMatrix" );
-
     document.getElementById("draw").onclick = function(event) {
       console.log("draw button clicked");
 
+      //  Load shaders and initialize attribute buffers
       var program = initShaders( gl, "vertex-shader", "fragment-shader" );
       programs.push(program);
-      //gl.useProgram( program );
 
       var vBuffer = gl.createBuffer();
       gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer);
@@ -147,54 +119,44 @@ window.onload = function init() {
       program.zPos = zPos;
       program.scaleFactor = scaleFactor;
 
-      //init();
       draw = true;
       render();
     }
     document.getElementById("x-angle-slider").onchange = function(event) {
       console.log("x-angle = " + event.target.value);
       xAngle = event.target.value;
-      //render();
     };
     document.getElementById("y-angle-slider").onchange = function(event) {
       console.log("y-angle = " + event.target.value);
       yAngle = event.target.value;
-      //render();
     };
     document.getElementById("z-angle-slider").onchange = function(event) {
       console.log("z-angle = " + event.target.value);
       zAngle = event.target.value;
-      //render();
     };
     document.getElementById("x-pos-slider").onchange = function(event) {
       console.log("x-pos = " + event.target.value);
       xPos = event.target.value;
-      //render();
     };
     document.getElementById("y-pos-slider").onchange = function(event) {
       console.log("y-pos = " + event.target.value);
       yPos = event.target.value;
-      //render();
     };
     document.getElementById("z-pos-slider").onchange = function(event) {
       console.log("z-pos = " + event.target.value);
       zPos = event.target.value;
-      //render();
     };
     document.getElementById("size-small").onchange = function(event) {
       console.log("size small checked = " + event.target.value);
       scaleFactor = 0.5;
-      //init();
     };
     document.getElementById("size-medium").onchange = function(event) {
       console.log("size medium checked = " + event.target.value);
       scaleFactor = 1;
-      //init();
     };
     document.getElementById("size-large").onchange = function(event) {
       console.log("size large checked = " + event.target.value);
       scaleFactor = 2;
-      //init();
     };
 
     render();
@@ -202,66 +164,29 @@ window.onload = function init() {
 
 
 function render() {
-    gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     
   if (draw === false) {
     console.log("not draw");
     return;
   }
 
+  // Draw all the cones.
   for (var i = 0; i < programs.length; i++) {
     console.log("process i = " + i);
     processProgram(programs[i]);
   }
-
-    //eye = vec3(0, 0, radius);
-
-    //var rotateX = rotate(xAngle, 1, 0, 0) // rotate around the x axis.
-    //var rotateY = rotate(yAngle, 0, 1, 0) // rotate around the x axis.
-    //var rotateZ = rotate(zAngle, 0, 0, 1) // rotate around the x axis.
-
-    //// angle adjustment.
-    //modelViewMatrix = lookAt(eye, at , up);
-    //modelViewMatrix = mult(rotateX, modelViewMatrix);
-    //modelViewMatrix = mult(rotateY, modelViewMatrix);
-    //modelViewMatrix = mult(rotateZ, modelViewMatrix);
-
-    //// position adjustment.
-    //var tMatrix = translate(xPos, yPos, zPos);
-    //modelViewMatrix = mult(tMatrix, modelViewMatrix);
-    //var scaleMatrix = mat4(scaleFactor, 0, 0, 0,
-    //                       0, scaleFactor, 0, 0,
-    //                       0, 0, scaleFactor, 0,
-    //                       0, 0, 0, 1);
-    //modelViewMatrix = mult(scaleMatrix, modelViewMatrix);
-
-    //projectionMatrix = ortho(left, right, bottom, ytop, near, far);
-    //        
-    //gl.uniformMatrix4fv( modelViewMatrixLoc, false, flatten(modelViewMatrix) );
-    //gl.uniformMatrix4fv( projectionMatrixLoc, false, flatten(projectionMatrix) );
-    //    
-
-    //for( var i=0; i<index; i+=3) {
-    //  gl.uniform4fv(fColor, flatten(getRandomColor()));
-    //  gl.drawArrays( gl.TRIANGLES, i, 3 );
-
-    //  gl.uniform4fv(fColor, flatten(black));
-    //  gl.drawArrays( gl.LINE_LOOP, i, 3 );
-    //}
-
-    //window.requestAnimFrame(render);
 }
 
 function processProgram(program) {
     gl.useProgram( program );
+
+    // eye here is essentially at the origin as the radius is 0.
     eye = vec3(0, 0, radius);
 
-    //var rotateX = rotate(xAngle, 1, 0, 0) // rotate around the x axis.
-    //var rotateY = rotate(yAngle, 0, 1, 0) // rotate around the x axis.
-    //var rotateZ = rotate(zAngle, 0, 0, 1) // rotate around the x axis.
     var rotateX = rotate(program.xAngle, 1, 0, 0) // rotate around the x axis.
-    var rotateY = rotate(program.yAngle, 0, 1, 0) // rotate around the x axis.
-    var rotateZ = rotate(program.zAngle, 0, 0, 1) // rotate around the x axis.
+    var rotateY = rotate(program.yAngle, 0, 1, 0) // rotate around the y axis.
+    var rotateZ = rotate(program.zAngle, 0, 0, 1) // rotate around the z axis.
 
     // angle adjustment.
     program.modelViewMatrix = lookAt(eye, at , up);
@@ -285,9 +210,11 @@ function processProgram(program) {
         
 
     for( var i=0; i<index; i+=3) {
+      // Fill in random colors for the triangles.
       gl.uniform4fv(program.fColor, flatten(getRandomColor()));
       gl.drawArrays( gl.TRIANGLES, i, 3 );
 
+      // Draw the wire frames.
       gl.uniform4fv(program.fColor, flatten(black));
       gl.drawArrays( gl.LINE_LOOP, i, 3 );
     }
