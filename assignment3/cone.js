@@ -3,6 +3,7 @@
 var canvas;
 var gl;
 
+var draw = false;
 var numTimesToSubdivide = 4;
  
 var index = 0;
@@ -12,8 +13,6 @@ var fColor;
 
 var near = -10;
 var far = 10;
-//var near = 2;
-//var far = 10;
 
 var radius = 0;
 
@@ -71,7 +70,7 @@ window.onload = function init() {
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
     gl.viewport( 0, 0, canvas.width, canvas.height );
-    gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
+    gl.clearColor( 0.8, 0.8, 0.8, 1.0 );
 
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
@@ -111,71 +110,69 @@ window.onload = function init() {
     modelViewMatrixLoc = gl.getUniformLocation( program, "modelViewMatrix" );
     projectionMatrixLoc = gl.getUniformLocation( program, "projectionMatrix" );
 
-    document.getElementById("Button4").onclick = function(){
-        numTimesToSubdivide++; 
-        index = 0;
-        pointsArray = []; 
-        init();
-    };
-    document.getElementById("Button5").onclick = function(){
-        if(numTimesToSubdivide) numTimesToSubdivide--;
-        index = 0;
-        pointsArray = []; 
-        init();
-    };
     document.getElementById("x-angle-slider").onchange = function(event) {
       console.log("x-angle = " + event.target.value);
       xAngle = event.target.value;
-      render();
+      //render();
     };
     document.getElementById("y-angle-slider").onchange = function(event) {
       console.log("y-angle = " + event.target.value);
       yAngle = event.target.value;
-      render();
+      //render();
     };
     document.getElementById("z-angle-slider").onchange = function(event) {
       console.log("z-pos = " + event.target.value);
       zAngle = event.target.value;
-      render();
+      //render();
     };
     document.getElementById("x-pos-slider").onchange = function(event) {
       console.log("x-pos = " + event.target.value);
       xPos = event.target.value;
-      render();
+      //render();
     };
     document.getElementById("y-pos-slider").onchange = function(event) {
       console.log("y-pos = " + event.target.value);
       yPos = event.target.value;
-      render();
+      //render();
     };
     document.getElementById("z-pos-slider").onchange = function(event) {
       console.log("z-pos = " + event.target.value);
       zPos = event.target.value;
-      render();
+      //render();
     };
     document.getElementById("size-small").onchange = function(event) {
       console.log("size small checked = " + event.target.value);
       scaleFactor = 0.5;
-      init();
+      //init();
     };
     document.getElementById("size-medium").onchange = function(event) {
       console.log("size medium checked = " + event.target.value);
       scaleFactor = 1;
-      init();
+      //init();
     };
     document.getElementById("size-large").onchange = function(event) {
       console.log("size large checked = " + event.target.value);
       scaleFactor = 2;
-      init();
+      //init();
     };
+    document.getElementById("draw").onclick = function(event) {
+      console.log("draw button clicked");
+      //init();
+      draw = true;
+      render();
+    }
     render();
 }
 
 
 function render() {
-    
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     
+  if (draw === false) {
+    console.log("not draw");
+    return;
+  }
+
     //eye = vec3(radius*Math.sin(theta)*Math.cos(phi), 
     //    radius*Math.sin(theta)*Math.sin(phi), radius*Math.cos(theta));
     eye = vec3(0, 0, radius);
@@ -185,16 +182,12 @@ function render() {
     var rotateZ = rotate(zAngle, 0, 0, 1) // rotate around the x axis.
 
     // angle adjustment.
-    //modelViewMatrix = mult(rotateX, lookAt(eye, at , up));
     modelViewMatrix = lookAt(eye, at , up);
     modelViewMatrix = mult(rotateX, modelViewMatrix);
     modelViewMatrix = mult(rotateY, modelViewMatrix);
     modelViewMatrix = mult(rotateZ, modelViewMatrix);
 
     // position adjustment.
-    //xPos = 1;
-    //yPos = 0;
-    //zPos = 0;
     var tMatrix = translate(xPos, yPos, zPos);
     modelViewMatrix = mult(tMatrix, modelViewMatrix);
     var scaleMatrix = mat4(scaleFactor, 0, 0, 0,

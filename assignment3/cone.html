@@ -31,10 +31,6 @@ main()
 }
 </script>
 
-<p> </p>
-<button id = "Button4">Increase Subdivisions</button>
-<button id = "Button5">Decrease Subdivisions</button>
-<p> </p>
 <div>
 x-angle 0 <input id="x-angle-slider" type="range"
 min="0" max="360" step="20" value="0" />
@@ -67,7 +63,7 @@ min="-10" max="10" step="2" value="0" />
 10
 </div>
 
-<form>
+<div>
 Size:
 <br>
 <input id="size-small" type="radio" name="size" value="small">Small
@@ -75,7 +71,10 @@ Size:
 <input id="size-medium" type="radio" name="size" value="medium" checked>Medium
 <br>
 <input id="size-large" type="radio" name="size" value="large">Large
-</form>
+</div>
+<div>
+<button id = "draw">Draw</button>
+</div>
 
 <script type="text/javascript" src="../Common/webgl-utils.js"></script>
 <script type="text/javascript" src="../Common/initShaders.js"></script>
