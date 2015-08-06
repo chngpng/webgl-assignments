@@ -42,6 +42,26 @@ const up = vec3(0.0, 1.0, 0.0);
 const red = vec4(1.0, 0.0, 0.0, 1.0);
 const black = vec4(0.0, 0.0, 0.0, 1.0);
 
+function processCylinder() {
+  var vxposBottom = vec4(1.0, 0.0, 0.0, 1);
+  var vxnegBottom = vec4(-1.0, 0.0, 0.0, 1);
+  var vzposBottom = vec4(0.0, 0.0, 1.0, 1);
+  var vznegBottom = vec4(0.0, 0.0, -1.0, 1);
+
+  var vxposTop = vec4(1.0, 1.0, 0.0, 1);
+  var vxnegTop = vec4(-1.0, 1.0, 0.0, 1);
+  var vzposTop = vec4(0.0, 1.0, 1.0, 1);
+  var vznegTop = vec4(0.0, 1.0, -1.0, 1);
+
+  var vcenterBottom = vec4(0.0, 0.0, 0.0, 1.0);
+  var vcenterTop = vec4(0.0, 1.0, 0.0, 1.0);
+
+  divideRectangleForCylinder(vxposBottom, vzposBottom, vcenterBottom, vxposTop, vzposTop, vcenterTop, numTimesToSubdivide);
+  divideRectangleForCylinder(vxposBottom, vznegBottom, vcenterBottom, vxposTop, vznegTop, vcenterTop, numTimesToSubdivide);
+  divideRectangleForCylinder(vxnegBottom, vzposBottom, vcenterBottom, vxnegTop, vzposTop, vcenterTop, numTimesToSubdivide);
+  divideRectangleForCylinder(vxnegBottom, vznegBottom, vcenterBottom, vxnegTop, vznegTop, vcenterTop, numTimesToSubdivide);
+
+}
 function processSphere() {
   var vxpos = vec4(1.0, 0.0, 0.0, 1);
   var vxneg = vec4(-1.0, 0.0, 0.0, 1);
@@ -87,6 +107,29 @@ function triangle(a, b, c) {
 
 function getRandomColor() {
   return vec4(Math.random(), Math.random(), Math.random(), 1);
+}
+
+function divideRectangleForCylinder(a, b, center1, c, d, center2, count) {
+    if ( count > 0 ) {
+        var aa = vec4(a[0], 0, a[2], 1.0);
+        var bb = vec4(b[0], 0, b[2], 1.0);
+        var cc = vec4(c[0], 0, c[2], 1.0);
+        var dd = vec4(d[0], 0, d[2], 1.0);
+
+        var ab = normalize(mix( aa, bb, 0.5), true);
+        var cd = normalize(mix( cc, dd, 0.5), true);
+        ab[1] = a[1];
+        cd[1] = c[1];
+                                
+        divideRectangleForCylinder( a, ab, center1, c, cd, center2, count - 1 );
+        divideRectangleForCylinder( ab, b, center1, cd, d, center2, count - 1 );
+    }
+    else { 
+        triangle( a, b, c );
+        triangle( c, d, b );
+        triangle( a, b, center1);
+        triangle( c, d, center2);
+    }
 }
 
 function divideTriangleForSphere(a, b, c, count) {
@@ -140,13 +183,15 @@ window.onload = function init() {
         program.indexStart = index;
         processCone();
         program.indexEnd = index;
-      } else if (geometry === "sphere") {
+      }  else if (geometry === "cylinder") {
+        program.indexStart = index;
+        processCylinder();
+        program.indexEnd = index;
+      } else {
+        console.log("skip");
         program.indexStart = index;
         processSphere();
         program.indexEnd = index;
-      }else {
-        console.log("skip");
-        return;
       }
 
       var vBuffer = gl.createBuffer();
@@ -208,10 +253,6 @@ window.onload = function init() {
     document.getElementById("y-pos-slider").onchange = function(event) {
       console.log("y-pos = " + event.target.value);
       yPos = event.target.value;
-    };
-    document.getElementById("z-pos-slider").onchange = function(event) {
-      console.log("z-pos = " + event.target.value);
-      zPos = event.target.value;
     };
     document.getElementById("size-small").onchange = function(event) {
       console.log("size small checked = " + event.target.value);
