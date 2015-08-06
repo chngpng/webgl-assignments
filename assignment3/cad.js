@@ -302,14 +302,16 @@ function processProgram(program) {
     program.modelViewMatrix = mult(rotateY, program.modelViewMatrix);
     program.modelViewMatrix = mult(rotateZ, program.modelViewMatrix);
 
-    // position adjustment.
-    var tMatrix = translate(program.xPos, program.yPos, program.zPos);
-    program.modelViewMatrix = mult(tMatrix, program.modelViewMatrix);
+    // scale the size.
     var scaleMatrix = mat4(program.scaleFactor, 0, 0, 0,
                            0, program.scaleFactor, 0, 0,
                            0, 0, program.scaleFactor, 0,
                            0, 0, 0, 1);
     program.modelViewMatrix = mult(scaleMatrix, program.modelViewMatrix);
+
+    // position adjustment.
+    var tMatrix = translate(program.xPos, program.yPos, program.zPos);
+    program.modelViewMatrix = mult(tMatrix, program.modelViewMatrix);
 
     program.projectionMatrix = ortho(left, right, bottom, ytop, near, far);
             
