@@ -4,7 +4,8 @@ var canvas;
 var gl;
 
 var draw = false;
-var numTimesToSubdivide = 1;
+var geometry = "";
+var numTimesToSubdivide = 3;
 
 // All the geometrical objects.
 var objects = [];
@@ -41,7 +42,25 @@ const up = vec3(0.0, 1.0, 0.0);
 const red = vec4(1.0, 0.0, 0.0, 1.0);
 const black = vec4(0.0, 0.0, 0.0, 1.0);
 
-function processCone(program) {
+function processSphere() {
+  var vxpos = vec4(1.0, 0.0, 0.0, 1);
+  var vxneg = vec4(-1.0, 0.0, 0.0, 1);
+  var vypos = vec4(0.0, 1.0, 0.0, 1);
+  var vyneg = vec4(0.0, -1.0, 0.0, 1);
+  var vzpos = vec4(0.0, 0.0, 1.0, 1);
+  var vzneg = vec4(0.0, 0.0, -1.0, 1);
+
+  divideTriangleForSphere(vxpos, vypos, vzpos, numTimesToSubdivide);
+  divideTriangleForSphere(vxpos, vypos, vzneg, numTimesToSubdivide);
+  divideTriangleForSphere(vxpos, vyneg, vzpos, numTimesToSubdivide);
+  divideTriangleForSphere(vxpos, vyneg, vzneg, numTimesToSubdivide);
+  divideTriangleForSphere(vxneg, vypos, vzpos, numTimesToSubdivide);
+  divideTriangleForSphere(vxneg, vypos, vzneg, numTimesToSubdivide);
+  divideTriangleForSphere(vxneg, vyneg, vzpos, numTimesToSubdivide);
+  divideTriangleForSphere(vxneg, vyneg, vzneg, numTimesToSubdivide);
+}
+
+function processCone() {
   var vxpos = vec4(1, 0.0, 0.0, 1);
   var vxneg = vec4(-1, 0.0, 0.0, 1);
   var vzpos = vec4(0.0, 0.0, 1, 1);
@@ -57,26 +76,6 @@ function processCone(program) {
   divideTriangle(vxpos, vzneg, vcenter, numTimesToSubdivide);
   divideTriangle(vxneg, vzpos, vcenter, numTimesToSubdivide);
   divideTriangle(vxneg, vzneg, vcenter, numTimesToSubdivide);
-
-  program.vPosition = gl.getAttribLocation( program, "vPosition");
-  gl.vertexAttribPointer( program.vPosition, 4, gl.FLOAT, false, 0, 0);
-  gl.enableVertexAttribArray( program.vPosition);
-
-  program.fColor = gl.getUniformLocation(program, "fColor");
-  program.modelViewMatrixLoc = gl.getUniformLocation( program, "modelViewMatrix" );
-  program.projectionMatrixLoc = gl.getUniformLocation( program, "projectionMatrix" );
-
-  program.xAngle = xAngle;
-  program.yAngle = yAngle;
-  program.zAngle = zAngle;
-  program.xPos = xPos;
-  program.yPos = yPos;
-  program.zPos = zPos;
-  program.scaleFactor = scaleFactor;
-
-  var object = {};
-  object.program = program;
-  objects.push(object);
 }
 
 function triangle(a, b, c) {
@@ -88,6 +87,23 @@ function triangle(a, b, c) {
 
 function getRandomColor() {
   return vec4(Math.random(), Math.random(), Math.random(), 1);
+}
+
+function divideTriangleForSphere(a, b, c, count) {
+    if ( count > 0 ) {
+                
+        var ab = normalize(mix( a, b, 0.5), true);
+        var ac = normalize(mix( a, c, 0.5), true);
+        var bc = normalize(mix( b, c, 0.5), true);
+                                
+        divideTriangleForSphere( a, ab, ac, count - 1 );
+        divideTriangleForSphere( ab, b, bc, count - 1 );
+        divideTriangleForSphere( bc, c, ac, count - 1 );
+        divideTriangleForSphere( ab, bc, ac, count - 1 );
+    }
+    else { // draw tetrahedron at end of recursion
+        triangle( a, b, c );
+    }
 }
 
 function divideTriangle(a, b, c, count) {
@@ -114,33 +130,32 @@ window.onload = function init() {
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
 
-    var vxpos = vec4(1, 0.0, 0.0, 1);
-    var vxneg = vec4(-1, 0.0, 0.0, 1);
-    var vzpos = vec4(0.0, 0.0, 1, 1);
-    var vzneg = vec4(0.0, 0.0, -1, 1);
-    var vypos = vec4(0.0, 1, 0.0, 1);
-    var vcenter = vec4(0.0, 0.0, 0.0, 1.0);
-
-    divideTriangle(vxpos, vzpos, vypos, numTimesToSubdivide);
-    divideTriangle(vxpos, vzneg, vypos, numTimesToSubdivide);
-    divideTriangle(vxneg, vzpos, vypos, numTimesToSubdivide);
-    divideTriangle(vxneg, vzneg, vypos, numTimesToSubdivide);
-    divideTriangle(vxpos, vzpos, vcenter, numTimesToSubdivide);
-    divideTriangle(vxpos, vzneg, vcenter, numTimesToSubdivide);
-    divideTriangle(vxneg, vzpos, vcenter, numTimesToSubdivide);
-    divideTriangle(vxneg, vzneg, vcenter, numTimesToSubdivide);
-
     document.getElementById("draw").onclick = function(event) {
       console.log("draw button clicked");
 
       //  Load shaders and initialize attribute buffers
       var program = initShaders( gl, "vertex-shader", "fragment-shader" );
 
+      if (geometry === "cone") {
+        processCone();
+        program.index = index;
+        index = 0;
+        program.pointsArray = pointsArray;
+        pointsArray = [];
+      } else if (geometry === "sphere") {
+        processSphere();
+        program.index = index;
+        index = 0;
+        program.pointsArray = pointsArray;
+        pointsArray = [];
+      }else {
+        console.log("skip");
+        return;
+      }
+
       var vBuffer = gl.createBuffer();
       gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer);
-      gl.bufferData( gl.ARRAY_BUFFER, flatten(pointsArray), gl.STATIC_DRAW);
-
-      //processCone(program);
+      gl.bufferData( gl.ARRAY_BUFFER, flatten(program.pointsArray), gl.STATIC_DRAW);
 
       program.vPosition = gl.getAttribLocation( program, "vPosition");
       gl.vertexAttribPointer( program.vPosition, 4, gl.FLOAT, false, 0, 0);
@@ -166,6 +181,18 @@ window.onload = function init() {
       objects.push(object);
       render();
     }
+    document.getElementById("cone").onchange = function(event) {
+      console.log("geometry checked = " + event.target.value);
+      geometry = "cone";
+    };
+    document.getElementById("sphere").onchange = function(event) {
+      console.log("geometry checked = " + event.target.value);
+      geometry = "sphere";
+    };
+    document.getElementById("cylinder").onchange = function(event) {
+      console.log("geometry checked = " + event.target.value);
+      geometry = "cylinder";
+    };
     document.getElementById("x-angle-slider").onchange = function(event) {
       console.log("x-angle = " + event.target.value);
       xAngle = event.target.value;
@@ -215,7 +242,7 @@ function render() {
     return;
   }
 
-  // Draw all the cones.
+  // Draw all the geometries.
   for (var i = 0; i < objects.length; i++) {
     console.log("process object i = " + i);
     processProgram(objects[i].program);
@@ -253,7 +280,7 @@ function processProgram(program) {
     gl.uniformMatrix4fv( program.projectionMatrixLoc, false, flatten(program.projectionMatrix) );
         
 
-    for( var i=0; i<index; i+=3) {
+    for( var i=0; i<program.index; i+=3) {
       // Fill in random colors for the triangles.
       gl.uniform4fv(program.fColor, flatten(getRandomColor()));
       gl.drawArrays( gl.TRIANGLES, i, 3 );
