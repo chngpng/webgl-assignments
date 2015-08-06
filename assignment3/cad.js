@@ -20,10 +20,10 @@ var far = 10;
 
 var radius = 0;
 
-var left = -2.0;
-var right = 2.0;
-var ytop = 2.0;
-var bottom = -2.0;
+var left = -4.0;
+var right = 4.0;
+var ytop = 4.0;
+var bottom = -4.0;
 
 var xAngle = 0;
 var yAngle = 0;
@@ -137,17 +137,13 @@ window.onload = function init() {
       var program = initShaders( gl, "vertex-shader", "fragment-shader" );
 
       if (geometry === "cone") {
+        program.indexStart = index;
         processCone();
-        program.index = index;
-        index = 0;
-        program.pointsArray = pointsArray;
-        pointsArray = [];
+        program.indexEnd = index;
       } else if (geometry === "sphere") {
+        program.indexStart = index;
         processSphere();
-        program.index = index;
-        index = 0;
-        program.pointsArray = pointsArray;
-        pointsArray = [];
+        program.indexEnd = index;
       }else {
         console.log("skip");
         return;
@@ -155,7 +151,7 @@ window.onload = function init() {
 
       var vBuffer = gl.createBuffer();
       gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer);
-      gl.bufferData( gl.ARRAY_BUFFER, flatten(program.pointsArray), gl.STATIC_DRAW);
+      gl.bufferData( gl.ARRAY_BUFFER, flatten(pointsArray), gl.STATIC_DRAW);
 
       program.vPosition = gl.getAttribLocation( program, "vPosition");
       gl.vertexAttribPointer( program.vPosition, 4, gl.FLOAT, false, 0, 0);
@@ -280,7 +276,7 @@ function processProgram(program) {
     gl.uniformMatrix4fv( program.projectionMatrixLoc, false, flatten(program.projectionMatrix) );
         
 
-    for( var i=0; i<program.index; i+=3) {
+    for( var i=program.indexStart; i<program.indexEnd; i+=3) {
       // Fill in random colors for the triangles.
       gl.uniform4fv(program.fColor, flatten(getRandomColor()));
       gl.drawArrays( gl.TRIANGLES, i, 3 );
