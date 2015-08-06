@@ -5,7 +5,7 @@ var gl;
 
 var draw = false;
 var geometry = "";
-var numTimesToSubdivide = 3;
+var numTimesToSubdivide = 4;
 
 // All the geometrical objects.
 var objects = [];
@@ -321,7 +321,8 @@ function processProgram(program) {
 
     for( var i=program.indexStart; i<program.indexEnd; i+=3) {
       // Fill in random colors for the triangles.
-      gl.uniform4fv(program.fColor, flatten(getRandomColor()));
+      //gl.uniform4fv(program.fColor, flatten(getRandomColor()));
+      gl.uniform4fv(program.fColor, flatten(red));
       gl.drawArrays( gl.TRIANGLES, i, 3 );
 
       // Draw the wire frames.
