@@ -13,6 +13,7 @@ var objects = [];
 var index = 0;
 
 var pointsArray = [];
+var normalsArray = [];
 var fColor;
 
 var near = -10;
@@ -34,6 +35,19 @@ var yPos = 0;
 var zPos = 0;
 
 var scaleFactor = 1;
+
+var lightPosition = vec4(1.0, 1.0, 1.0, 0.0 );
+var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0 );
+var lightDiffuse = vec4( 1.0, 1.0, 1.0, 1.0 );
+var lightSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
+
+var materialAmbient = vec4( 1.0, 0.0, 1.0, 1.0 );
+var materialDiffuse = vec4( 1.0, 0.8, 0.0, 1.0 );
+var materialSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
+var materialShininess = 20.0;
+
+var ctm;
+var ambientColor, diffuseColor, specularColor;
 
 var eye;
 const at = vec3(0.0, 0.0, 0.0);
@@ -102,6 +116,12 @@ function triangle(a, b, c) {
      pointsArray.push(a); 
      pointsArray.push(b); 
      pointsArray.push(c);     
+
+     // normals are vectors
+     normalsArray.push(a[0],a[1], a[2], 0.0);
+     normalsArray.push(b[0],b[1], b[2], 0.0);
+     normalsArray.push(c[0],c[1], c[2], 0.0);
+
      index += 3;
 }
 
@@ -194,6 +214,14 @@ window.onload = function init() {
         program.indexEnd = index;
       }
 
+      var nBuffer = gl.createBuffer();
+      gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer);
+      gl.bufferData( gl.ARRAY_BUFFER, flatten(normalsArray), gl.STATIC_DRAW );
+      
+      program.vNormal = gl.getAttribLocation( program, "vNormal" );
+      gl.vertexAttribPointer( program.vNormal, 4, gl.FLOAT, false, 0, 0 );
+      gl.enableVertexAttribArray( program.vNormal);
+
       var vBuffer = gl.createBuffer();
       gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer);
       gl.bufferData( gl.ARRAY_BUFFER, flatten(pointsArray), gl.STATIC_DRAW);
@@ -205,6 +233,7 @@ window.onload = function init() {
       program.fColor = gl.getUniformLocation(program, "fColor");
       program.modelViewMatrixLoc = gl.getUniformLocation( program, "modelViewMatrix" );
       program.projectionMatrixLoc = gl.getUniformLocation( program, "projectionMatrix" );
+      program.normalMatrixLoc = gl.getUniformLocation( program, "normalMatrix" );
 
       program.xAngle = xAngle;
       program.yAngle = yAngle;
@@ -314,19 +343,36 @@ function processProgram(program) {
     program.modelViewMatrix = mult(tMatrix, program.modelViewMatrix);
 
     program.projectionMatrix = ortho(left, right, bottom, ytop, near, far);
+
+    program.normalMatrix = [
+        vec3(program.modelViewMatrix[0][0], program.modelViewMatrix[0][1], program.modelViewMatrix[0][2]),
+        vec3(program.modelViewMatrix[1][0], program.modelViewMatrix[1][1], program.modelViewMatrix[1][2]),
+        vec3(program.modelViewMatrix[2][0], program.modelViewMatrix[2][1], program.modelViewMatrix[2][2])
+    ];
             
     gl.uniformMatrix4fv( program.modelViewMatrixLoc, false, flatten(program.modelViewMatrix) );
     gl.uniformMatrix4fv( program.projectionMatrixLoc, false, flatten(program.projectionMatrix) );
+    gl.uniformMatrix3fv( program.normalMatrixLoc, false, flatten(program.normalMatrix) );
         
+    program.ambientProduct = mult(lightAmbient, materialAmbient);
+    program.diffuseProduct = mult(lightDiffuse, materialDiffuse);
+    program.specularProduct = mult(lightSpecular, materialSpecular);
+
+    gl.uniform4fv( gl.getUniformLocation(program, "ambientProduct"),flatten(program.ambientProduct) );
+    gl.uniform4fv( gl.getUniformLocation(program, "diffuseProduct"),flatten(program.diffuseProduct) );
+    gl.uniform4fv( gl.getUniformLocation(program, "specularProduct"),flatten(program.specularProduct) );	
+    gl.uniform4fv( gl.getUniformLocation(program, "lightPosition"),flatten(lightPosition) );
+    gl.uniform1f( gl.getUniformLocation(program, "shininess"),materialShininess );
+
 
     for( var i=program.indexStart; i<program.indexEnd; i+=3) {
       // Fill in random colors for the triangles.
       //gl.uniform4fv(program.fColor, flatten(getRandomColor()));
-      gl.uniform4fv(program.fColor, flatten(red));
+      //gl.uniform4fv(program.fColor, flatten(red));
       gl.drawArrays( gl.TRIANGLES, i, 3 );
 
       // Draw the wire frames.
-      gl.uniform4fv(program.fColor, flatten(black));
-      gl.drawArrays( gl.LINE_LOOP, i, 3 );
+      //gl.uniform4fv(program.fColor, flatten(black));
+      //gl.drawArrays( gl.LINE_LOOP, i, 3 );
     }
 }
