@@ -40,12 +40,15 @@ var lightRadius = 50.0;
 
 var scaleFactor = 1;
 
-//var lightPosition = vec4(1.0, 1.0, 1.0, 0.0 );
 var lightPosition = vec4(0.0, 0.0, 1.0, 0.0 );
-var lightPosition2 = vec4(0.0, 1.0, 0.0, 0.0 );
 var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0 );
 var lightDiffuse = vec4( 1.0, 1.0, 1.0, 1.0 );
 var lightSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
+
+var lightPosition2 = vec4(0.0, 1.0, 0.0, 0.0 );
+var lightAmbient2 = vec4(0.4, 0.2, 0.2, 1.0 );
+var lightDiffuse2 = vec4( 1.0, 1.0, 1.0, 1.0 );
+var lightSpecular2 = vec4( 1.0, 1.0, 1.0, 1.0 );
 
 var materialAmbient = vec4( 1.0, 0.0, 1.0, 1.0 );
 var materialDiffuse = vec4( 1.0, 0.8, 0.0, 1.0 );
@@ -384,11 +387,17 @@ function processProgram(program) {
     program.ambientProduct = mult(lightAmbient, materialAmbient);
     program.diffuseProduct = mult(lightDiffuse, materialDiffuse);
     program.specularProduct = mult(lightSpecular, materialSpecular);
+    program.ambientProduct2 = mult(lightAmbient2, materialAmbient);
+    program.diffuseProduct2 = mult(lightDiffuse2, materialDiffuse);
+    program.specularProduct2 = mult(lightSpecular2, materialSpecular);
 
     gl.uniform4fv( gl.getUniformLocation(program, "ambientProduct"),flatten(program.ambientProduct) );
     gl.uniform4fv( gl.getUniformLocation(program, "diffuseProduct"),flatten(program.diffuseProduct) );
     gl.uniform4fv( gl.getUniformLocation(program, "specularProduct"),flatten(program.specularProduct) );	
     gl.uniform4fv( gl.getUniformLocation(program, "lightPosition"),flatten(lightPosition) );
+    gl.uniform4fv( gl.getUniformLocation(program, "ambientProduct2"),flatten(program.ambientProduct2) );
+    gl.uniform4fv( gl.getUniformLocation(program, "diffuseProduct2"),flatten(program.diffuseProduct2) );
+    gl.uniform4fv( gl.getUniformLocation(program, "specularProduct2"),flatten(program.specularProduct2) );	
     gl.uniform4fv( gl.getUniformLocation(program, "lightPosition2"),flatten(lightPosition2) );
     gl.uniform1f( gl.getUniformLocation(program, "shininess"),materialShininess );
 

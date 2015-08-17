@@ -12,10 +12,12 @@ attribute vec4 vNormal;
 varying vec4 fColor;
 
 uniform vec4 ambientProduct, diffuseProduct, specularProduct;
+uniform vec4 ambientProduct2, diffuseProduct2, specularProduct2;
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
 uniform mat3 normalMatrix;
 uniform vec4 lightPosition;
+uniform vec4 lightPosition2;
 uniform float shininess;
 
 void
@@ -25,11 +27,13 @@ main()
     vec3 pos = (modelViewMatrix * vPosition).xyz;
     
     // vector from vertex position to light source
-    vec3 L;
+    vec3 L, L2;
     
     // check for directional light
     if(lightPosition.w == 0.0) L = normalize(lightPosition.xyz);
     else L = normalize( lightPosition.xyz - pos );
+    if(lightPosition2.w == 0.0) L2 = normalize(lightPosition2.xyz);
+    else L2 = normalize( lightPosition2.xyz - pos );
 
     // Because the eye point the is at the orgin
     // the vector from the vertex position to the eye is
@@ -37,26 +41,34 @@ main()
     
     // halfway vector
     vec3 H = normalize( L + E );
+    vec3 H2 = normalize( L2 + E );
 
     // Transform vertex normal into eye coordinates
     vec3 N = normalize( normalMatrix*vNormal.xyz);
 
-
     // Compute terms in the illumination equation
     vec4 ambient = ambientProduct;
+    vec4 ambient2 = ambientProduct2;
 
     float Kd = max( dot(L, N), 0.0 );
     vec4  diffuse = Kd*diffuseProduct;
+    float Kd2 = max( dot(L2, N), 0.0 );
+    vec4  diffuse2 = Kd2*diffuseProduct2;
 
     float Ks = pow( max(dot(N, H), 0.0), shininess );
-    vec4  specular = Ks * specularProduct;
+    vec4 specular = Ks * specularProduct;
+    float Ks2 = pow( max(dot(N, H2), 0.0), shininess );
+    vec4 specular2 = Ks2 * specularProduct2;
     
     if( dot(L, N) < 0.0 ) {
 	    specular = vec4(0.0, 0.0, 0.0, 1.0);
     }
+    if( dot(L2, N) < 0.0 ) {
+	    specular2 = vec4(0.0, 0.0, 0.0, 1.0);
+    }
 
     gl_Position = projectionMatrix * modelViewMatrix * vPosition;
-    fColor = ambient + diffuse +specular;
+    fColor = ambient + diffuse + specular + ambient2 + diffuse2 + specular2;
     fColor.a = 1.0;
 }
 </script>
