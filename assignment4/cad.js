@@ -55,6 +55,9 @@ var materialDiffuse = vec4( 1.0, 0.8, 0.0, 1.0 );
 var materialSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
 var materialShininess = 20.0;
 
+var enableLight1 = true;
+var enableLight2 = true;
+
 var ctm;
 var ambientColor, diffuseColor, specularColor;
 
@@ -304,16 +307,28 @@ window.onload = function init() {
       console.log("size large checked = " + event.target.value);
       scaleFactor = 2;
     };
+    document.getElementById('light1-on').onchange = function(event) {
+      console.log('light1 is on');
+      enableLight1 = true;
+    }
+    document.getElementById('light1-off').onchange = function(event) {
+      console.log('light1 is off');
+      enableLight1 = false;
+    }
+    document.getElementById('light2-on').onchange = function(event) {
+      console.log('light2 is on');
+      enableLight2 = true;
+    }
+    document.getElementById('light2-off').onchange = function(event) {
+      console.log('light2 is off');
+      enableLight2 = false;
+    }
 
     render();
 }
 
 function updateLightPosition() {
   phi += 0.02;
-  //lightPosition = vec4( radius*Math.sin(theta)*Math.cos(phi),
-  //                  radius*Math.sin(theta)*Math.sin(phi),
-  //                  radius*Math.cos(theta),
-  //                  0.0 );
   lightPosition = vec4( lightRadius*Math.cos(phi),
                     lightRadius*Math.sin(phi),
                     lightRadius,
@@ -384,12 +399,23 @@ function processProgram(program) {
     gl.uniformMatrix4fv( program.projectionMatrixLoc, false, flatten(program.projectionMatrix) );
     gl.uniformMatrix3fv( program.normalMatrixLoc, false, flatten(program.normalMatrix) );
         
+    var zeros = vec4(0,0,0,0);
     program.ambientProduct = mult(lightAmbient, materialAmbient);
-    program.diffuseProduct = mult(lightDiffuse, materialDiffuse);
-    program.specularProduct = mult(lightSpecular, materialSpecular);
+    if (enableLight1) {
+      program.diffuseProduct = mult(lightDiffuse, materialDiffuse);
+      program.specularProduct = mult(lightSpecular, materialSpecular);
+    } else {
+      program.diffuseProduct = zeros;
+      program.specularProduct = zeros;
+    }
     program.ambientProduct2 = mult(lightAmbient2, materialAmbient);
-    program.diffuseProduct2 = mult(lightDiffuse2, materialDiffuse);
-    program.specularProduct2 = mult(lightSpecular2, materialSpecular);
+    if (enableLight2) {
+      program.diffuseProduct2 = mult(lightDiffuse2, materialDiffuse);
+      program.specularProduct2 = mult(lightSpecular2, materialSpecular);
+    } else {
+      program.diffuseProduct2 = zeros;
+      program.specularProduct2 = zeros;
+    }
 
     gl.uniform4fv( gl.getUniformLocation(program, "ambientProduct"),flatten(program.ambientProduct) );
     gl.uniform4fv( gl.getUniformLocation(program, "diffuseProduct"),flatten(program.diffuseProduct) );
