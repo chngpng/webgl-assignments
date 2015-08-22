@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+<title>Cad</title>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+
+attribute vec4 vPosition;
+attribute vec4 vNormal;
+
+varying vec4 fColor;
+
+uniform vec4 ambientProduct, diffuseProduct, specularProduct;
+uniform vec4 ambientProduct2, diffuseProduct2, specularProduct2;
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+uniform mat3 normalMatrix;
+uniform vec4 lightPosition;
+uniform vec4 lightPosition2;
+uniform float shininess;
+
+void
+main()
+{
+    // pos is vertex position in eye coordinates
+    vec3 pos = (modelViewMatrix * vPosition).xyz;
+    
+    // vector from vertex position to light source
+    vec3 L, L2;
+    
+    // check for directional light
+    if(lightPosition.w == 0.0) L = normalize(lightPosition.xyz);
+    else L = normalize( lightPosition.xyz - pos );
+    if(lightPosition2.w == 0.0) L2 = normalize(lightPosition2.xyz);
+    else L2 = normalize( lightPosition2.xyz - pos );
+
+    // Because the eye point the is at the orgin
+    // the vector from the vertex position to the eye is
+    vec3 E = -normalize( pos );
+    
+    // halfway vector
+    vec3 H = normalize( L + E );
+    vec3 H2 = normalize( L2 + E );
+
+    // Transform vertex normal into eye coordinates
+    vec3 N = normalize( normalMatrix*vNormal.xyz);
+
+    // Compute terms in the illumination equation
+    vec4 ambient = ambientProduct;
+    vec4 ambient2 = ambientProduct2;
+
+    float Kd = max( dot(L, N), 0.0 );
+    vec4  diffuse = Kd*diffuseProduct;
+    float Kd2 = max( dot(L2, N), 0.0 );
+    vec4  diffuse2 = Kd2*diffuseProduct2;
+
+    float Ks = pow( max(dot(N, H), 0.0), shininess );
+    vec4 specular = Ks * specularProduct;
+    float Ks2 = pow( max(dot(N, H2), 0.0), shininess );
+    vec4 specular2 = Ks2 * specularProduct2;
+    
+    if( dot(L, N) < 0.0 ) {
+	    specular = vec4(0.0, 0.0, 0.0, 1.0);
+    }
+    if( dot(L2, N) < 0.0 ) {
+	    specular2 = vec4(0.0, 0.0, 0.0, 1.0);
+    }
+
+    gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+    fColor = ambient + diffuse + specular + ambient2 + diffuse2 + specular2;
+    fColor.a = 1.0;
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+
+precision mediump float;
+varying vec4 fColor;
+
+void
+main()
+{
+    gl_FragColor = fColor;
+}
+</script>
+
+<div>
+Size:
+<input id="cone" type="radio" name="geometry" value="cone">Cone
+<input id="sphere" type="radio" name="geometry" value="sphere" checked>Sphere
+<input id="cylinder" type="radio" name="geometry" value="cylinder">Cylinder
+
+<div>
+x-angle 0 <input id="x-angle-slider" type="range"
+min="0" max="360" step="20" value="0" />
+360
+</div>
+<div>
+y-angle 0 <input id="y-angle-slider" type="range"
+min="0" max="360" step="20" value="0" />
+360
+</div>
+<div>
+z-angle 0 <input id="z-angle-slider" type="range"
+min="0" max="360" step="20" value="0" />
+360
+</div>
+
+<div>
+x-position -4 <input id="x-pos-slider" type="range"
+min="-4" max="4" step="0.4" value="0" />
+4
+</div>
+<div>
+y-position -4 <input id="y-pos-slider" type="range"
+min="-4" max="4" step="0.4" value="0" />
+4
+</div>
+
+<div>
+Size:
+<input id="size-small" type="radio" name="size" value="small">Small
+<input id="size-medium" type="radio" name="size" value="medium" checked>Medium
+<input id="size-large" type="radio" name="size" value="large">Large
+</div>
+
+<div>
+Light1
+<input id='light1-on' type='radio' name='light1' value='on' checked>On
+<input id='light1-off' type='radio' name='light1' value='off'>Off
+</div>
+
+<div>
+Light2
+<input id='light2-on' type='radio' name='light2' value='on' checked>On
+<input id='light2-off' type='radio' name='light2' value='off'>Off
+</div>
+
+<div>
+<button id = "draw">Draw</button>
+</div>
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="cad2.js"></script>
+
+<body>
+<canvas id="gl-canvas" width="768" height="768">
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+</body>
+</html>
