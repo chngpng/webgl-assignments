@@ -271,108 +271,108 @@ window.onload = function init() {
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
 
-    document.getElementById("draw").onclick = function(event) {
-      console.log("draw button clicked");
+    //document.getElementById("draw").onclick = function(event) {
+    //  console.log("draw button clicked");
 
-      //  Load shaders and initialize attribute buffers
-      var program = initShaders( gl, "vertex-shader", "fragment-shader" );
+    //  //  Load shaders and initialize attribute buffers
+    //  var program = initShaders( gl, "vertex-shader", "fragment-shader" );
 
-      if (geometry === "cone") {
-        program.indexStart = index;
-        processCone();
-        program.indexEnd = index;
-      }  else if (geometry === "cylinder") {
-        program.indexStart = index;
-        processCylinder();
-        program.indexEnd = index;
-      } else {
-        console.log("skip");
-        program.indexStart = index;
-        processSphere();
-        program.indexEnd = index;
-      }
+    //  if (geometry === "cone") {
+    //    program.indexStart = index;
+    //    processCone();
+    //    program.indexEnd = index;
+    //  }  else if (geometry === "cylinder") {
+    //    program.indexStart = index;
+    //    processCylinder();
+    //    program.indexEnd = index;
+    //  } else {
+    //    console.log("skip");
+    //    program.indexStart = index;
+    //    processSphere();
+    //    program.indexEnd = index;
+    //  }
 
-      var nBuffer = gl.createBuffer();
-      gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer);
-      gl.bufferData( gl.ARRAY_BUFFER, flatten(normalsArray), gl.STATIC_DRAW );
-      
-      program.vNormal = gl.getAttribLocation( program, "vNormal" );
-      gl.vertexAttribPointer( program.vNormal, 4, gl.FLOAT, false, 0, 0 );
-      gl.enableVertexAttribArray( program.vNormal);
+    //  var nBuffer = gl.createBuffer();
+    //  gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer);
+    //  gl.bufferData( gl.ARRAY_BUFFER, flatten(normalsArray), gl.STATIC_DRAW );
+    //  
+    //  program.vNormal = gl.getAttribLocation( program, "vNormal" );
+    //  gl.vertexAttribPointer( program.vNormal, 4, gl.FLOAT, false, 0, 0 );
+    //  gl.enableVertexAttribArray( program.vNormal);
 
-      var vBuffer = gl.createBuffer();
-      gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer);
-      gl.bufferData( gl.ARRAY_BUFFER, flatten(pointsArray), gl.STATIC_DRAW);
+    //  var vBuffer = gl.createBuffer();
+    //  gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer);
+    //  gl.bufferData( gl.ARRAY_BUFFER, flatten(pointsArray), gl.STATIC_DRAW);
 
-      program.vPosition = gl.getAttribLocation( program, "vPosition");
-      gl.vertexAttribPointer( program.vPosition, 4, gl.FLOAT, false, 0, 0);
-      gl.enableVertexAttribArray( program.vPosition);
+    //  program.vPosition = gl.getAttribLocation( program, "vPosition");
+    //  gl.vertexAttribPointer( program.vPosition, 4, gl.FLOAT, false, 0, 0);
+    //  gl.enableVertexAttribArray( program.vPosition);
 
-      program.fColor = gl.getUniformLocation(program, "fColor");
-      program.modelViewMatrixLoc = gl.getUniformLocation( program, "modelViewMatrix" );
-      program.projectionMatrixLoc = gl.getUniformLocation( program, "projectionMatrix" );
-      program.normalMatrixLoc = gl.getUniformLocation( program, "normalMatrix" );
+    //  program.fColor = gl.getUniformLocation(program, "fColor");
+    //  program.modelViewMatrixLoc = gl.getUniformLocation( program, "modelViewMatrix" );
+    //  program.projectionMatrixLoc = gl.getUniformLocation( program, "projectionMatrix" );
+    //  program.normalMatrixLoc = gl.getUniformLocation( program, "normalMatrix" );
 
-      program.xAngle = xAngle;
-      program.yAngle = yAngle;
-      program.zAngle = zAngle;
-      program.xPos = xPos;
-      program.yPos = yPos;
-      program.zPos = zPos;
-      program.scaleFactor = scaleFactor;
+    //  program.xAngle = xAngle;
+    //  program.yAngle = yAngle;
+    //  program.zAngle = zAngle;
+    //  program.xPos = xPos;
+    //  program.yPos = yPos;
+    //  program.zPos = zPos;
+    //  program.scaleFactor = scaleFactor;
 
-      draw = true;
+    //  draw = true;
 
-      // Associate each object with its own program.
-      var object = {};
-      object.program = program;
-      objects.push(object);
-      render();
-    }
-    document.getElementById("cone").onchange = function(event) {
-      console.log("geometry checked = " + event.target.value);
-      geometry = "cone";
-    };
-    document.getElementById("sphere").onchange = function(event) {
-      console.log("geometry checked = " + event.target.value);
-      geometry = "sphere";
-    };
-    document.getElementById("cylinder").onchange = function(event) {
-      console.log("geometry checked = " + event.target.value);
-      geometry = "cylinder";
-    };
-    document.getElementById("x-angle-slider").onchange = function(event) {
-      console.log("x-angle = " + event.target.value);
-      xAngle = event.target.value;
-    };
-    document.getElementById("y-angle-slider").onchange = function(event) {
-      console.log("y-angle = " + event.target.value);
-      yAngle = event.target.value;
-    };
-    document.getElementById("z-angle-slider").onchange = function(event) {
-      console.log("z-angle = " + event.target.value);
-      zAngle = event.target.value;
-    };
-    document.getElementById("x-pos-slider").onchange = function(event) {
-      console.log("x-pos = " + event.target.value);
-      xPos = event.target.value;
-    };
-    document.getElementById("y-pos-slider").onchange = function(event) {
-      console.log("y-pos = " + event.target.value);
-      yPos = event.target.value;
-    };
-    document.getElementById("size-small").onchange = function(event) {
-      console.log("size small checked = " + event.target.value);
-      scaleFactor = 0.5;
-    };
-    document.getElementById("size-medium").onchange = function(event) {
-      console.log("size medium checked = " + event.target.value);
-      scaleFactor = 1;
-    };
-    document.getElementById("size-large").onchange = function(event) {
-      console.log("size large checked = " + event.target.value);
-      scaleFactor = 2;
-    };
+    //  // Associate each object with its own program.
+    //  var object = {};
+    //  object.program = program;
+    //  objects.push(object);
+    //  render();
+    //}
+    //document.getElementById("cone").onchange = function(event) {
+    //  console.log("geometry checked = " + event.target.value);
+    //  geometry = "cone";
+    //};
+    //document.getElementById("sphere").onchange = function(event) {
+    //  console.log("geometry checked = " + event.target.value);
+    //  geometry = "sphere";
+    //};
+    //document.getElementById("cylinder").onchange = function(event) {
+    //  console.log("geometry checked = " + event.target.value);
+    //  geometry = "cylinder";
+    //};
+    //document.getElementById("x-angle-slider").onchange = function(event) {
+    //  console.log("x-angle = " + event.target.value);
+    //  xAngle = event.target.value;
+    //};
+    //document.getElementById("y-angle-slider").onchange = function(event) {
+    //  console.log("y-angle = " + event.target.value);
+    //  yAngle = event.target.value;
+    //};
+    //document.getElementById("z-angle-slider").onchange = function(event) {
+    //  console.log("z-angle = " + event.target.value);
+    //  zAngle = event.target.value;
+    //};
+    //document.getElementById("x-pos-slider").onchange = function(event) {
+    //  console.log("x-pos = " + event.target.value);
+    //  xPos = event.target.value;
+    //};
+    //document.getElementById("y-pos-slider").onchange = function(event) {
+    //  console.log("y-pos = " + event.target.value);
+    //  yPos = event.target.value;
+    //};
+    //document.getElementById("size-small").onchange = function(event) {
+    //  console.log("size small checked = " + event.target.value);
+    //  scaleFactor = 0.5;
+    //};
+    //document.getElementById("size-medium").onchange = function(event) {
+    //  console.log("size medium checked = " + event.target.value);
+    //  scaleFactor = 1;
+    //};
+    //document.getElementById("size-large").onchange = function(event) {
+    //  console.log("size large checked = " + event.target.value);
+    //  scaleFactor = 2;
+    //};
     document.getElementById('light1-on').onchange = function(event) {
       console.log('light1 is on');
       enableLight1 = true;
