@@ -208,7 +208,7 @@ function simulateCone() {
   program.indexStart = index;
   processCone();
   program.indexEnd = index;
-  simulateDrawing(program, 40, 110, 0, -3, 1, 0, 1);
+  simulateDrawing(program, 40, 110, 0, -3, 0, 0, 1);
 }
 
 function simulateCylinder() {
@@ -217,7 +217,7 @@ function simulateCylinder() {
   program.indexStart = index;
   processCylinder();
   program.indexEnd = index;
-  simulateDrawing(program, 40, 110, 0, 2, 1, 0, 1);
+  simulateDrawing(program, 40, 110, 0, 2.5, 0, 0, 1);
 }
 
 // Simulate the drawing.
@@ -458,11 +458,13 @@ function processProgram(program) {
 
     program.projectionMatrix = ortho(left, right, bottom, ytop, near, far);
 
-    program.normalMatrix = [
-        vec3(program.modelViewMatrix[0][0], program.modelViewMatrix[0][1], program.modelViewMatrix[0][2]),
-        vec3(program.modelViewMatrix[1][0], program.modelViewMatrix[1][1], program.modelViewMatrix[1][2]),
-        vec3(program.modelViewMatrix[2][0], program.modelViewMatrix[2][1], program.modelViewMatrix[2][2])
-    ];
+    //program.normalMatrix = [
+    //    vec3(program.modelViewMatrix[0][0], program.modelViewMatrix[0][1], program.modelViewMatrix[0][2]),
+    //    vec3(program.modelViewMatrix[1][0], program.modelViewMatrix[1][1], program.modelViewMatrix[1][2]),
+    //    vec3(program.modelViewMatrix[2][0], program.modelViewMatrix[2][1], program.modelViewMatrix[2][2])
+    //];
+
+    program.normalMatrix = normalMatrix(program.modelViewMatrix, true);
             
     gl.uniformMatrix4fv( program.modelViewMatrixLoc, false, flatten(program.modelViewMatrix) );
     gl.uniformMatrix4fv( program.projectionMatrixLoc, false, flatten(program.projectionMatrix) );
